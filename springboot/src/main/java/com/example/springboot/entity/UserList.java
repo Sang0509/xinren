@@ -13,4 +13,5 @@ public class UserList<L> {
     private String skill;
     private String educational;
     private String address;
+    private Integer id;
 }

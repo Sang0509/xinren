@@ -157,6 +157,10 @@ const save = () => {
     if(valid) {
       //state.form.address = '東京都新宿区西新宿４丁目１５−７'
       //请求后台接口
+      // state.form.name = ""
+      // console.log(state.form.name)
+      // console.log(state.form)
+      console.log(state.form)
       request.post("http://localhost:9090/home",state.form).then(res => {
         ElMessage.success("登録しました")
         //关闭弹窗
