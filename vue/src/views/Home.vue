@@ -3,7 +3,7 @@
      <el-button type="primary" @click="handleAdd"><el-icon style="margin-right: 3px"><Plus /></el-icon>新規登録</el-button>
    </div>
      <el-table
-         :data="state.tableDate"
+         :data="state.tableData"
          border
          style="width: 100%">
        <el-table-column
@@ -56,15 +56,15 @@
            fixed="right"
            label="操作"
            width="150">
-         <template #default="scope">
-           <el-button @click="handleEdit(scope.row)" type="text" size="small"><el-icon style="margin-right: 3px"><Edit /></el-icon>編集</el-button>
-           <el-button link type="danger" size="small" @click="deletetRow(scope.row.name)"><el-icon style="margin-right: 3px"><Delete /></el-icon>削除</el-button>
+         <template #default>
+           <el-button @click="handleEdit" type="text" size="small"><el-icon style="margin-right: 3px"><Edit /></el-icon>編集</el-button>
+           <el-button link type="danger" size="small"><el-icon style="margin-right: 3px"><Delete /></el-icon>削除</el-button>
          </template>
        </el-table-column>
      </el-table>
 
    <el-dialog v-model="dialogFormVisible" title="新規情報登録" width="50%">
-     <el-form :model="state.form" :rules="state.rules" ref="ruleFormRef" label-width="120px" style="width: 85%">
+     <el-form :model="state.form" :rules="rules" ref="ruleFormRef" label-width="120px" style="width: 85%">
        <el-form-item label="氏名" prop="name">
          <el-input v-model="state.form.name" autocomplete="off" placeholder="氏名を入力してください" />
        </el-form-item>
@@ -118,66 +118,45 @@
  </template>
 
 <script setup>
-import { Edit, Delete, Plus} from '@element-plus/icons-vue'
+import { Edit, Delete, Plus } from '@element-plus/icons-vue'
 import {getCurrentInstance, reactive, ref} from "vue";
 import request from "../request";
-import {ElMessage} from "element-plus";
 const { proxy } = getCurrentInstance()
 
 const state = reactive({
   tableDate: [],
-  form: {},
-  rules: {
-    name: [
-      {required: true, message: '氏名を入力してください', trigger: 'blur'}
-    ]
-  }
+  form: {}
 })
 
-const load = () => {
-  request.get("http://localhost:9090/home/list").then(res => {
-    state.tableDate = res
-  })
-}
-load()
+
+request.get("http://localhost:9090/home/list").then(res => {
+  state.tableDate = res
+  console.log(state)
+})
+
+// const rules = reactive({
+//   username: [
+//     { required: true, message: '氏名を入力してください', trigger: 'blur' }
+//     ]
+// })
 
 const dialogFormVisible = ref(false)
 const handleAdd = () => {
   dialogFormVisible.value = true
-  state.form = {} //初始化数据
 }
 
-const handleEdit = (row) => {
+const handleEdit = () => {
   dialogFormVisible.value = true
-  state.form = JSON.parse(JSON.stringify(row))
 }
 
 const save = () => {
   proxy.$refs.ruleFormRef.validate((valid) => {
     if(valid) {
-      //state.form.address = '東京都新宿区西新宿４丁目１５−７'
-        //请求后台接口
-        request.post("http://localhost:9090/home",state.form).then(res => {
-          ElMessage.success("登録しました")
-          //关闭弹窗
-          dialogFormVisible.value = false
-          //刷新表格
-          load()
-        })
+      //请求后台接口
+      request.post("http://localhost:9090/home/list/1").then(res => {
+        state.tableData = res
+      })
     }
-  })
-}
-
-const deletetRow = (name) => {
-  request.delete("http://localhost:9090/home" + name).then(res => {
-    console.log(name)
-    if (res === true) {
-      ElMessage.success("删除成功")
-    } else {
-      ElMessage.success("删除失败")
-    }
-    //刷新表格
-    load()
   })
 }
 </script>
