@@ -4,13 +4,22 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.springboot.dao.ListDao">
+
     <insert id="insert">
         INSERT INTO `list` (name, sex, department, email, birthday, telephone, skill, educational, address)
         values(#{name}, #{sex}, #{department}, #{email}, #{birthday}, #{telephone}, #{skill}, #{educational}, #{address});
     </insert>
 
+    <update id="update">
+        update `list` set sex = #{sex},department = #{department},email = #{email},birthday = #{birthday},telephone = #{telephone},skill = #{skill},
+                          educational = #{educational},address = #{address} where name = #{name};
+    </update>
+
+    <delete id="deleteByName">
+        delete from `list` where name = #{name};
+    </delete>
+
     <select id="findAll" resultType="com.example.springboot.entity.UserList">
         SELECT * FROM list
     </select>
-
 </mapper>

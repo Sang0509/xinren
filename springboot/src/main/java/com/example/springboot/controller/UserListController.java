@@ -19,13 +19,24 @@ public class UserListController {
         return listDao.findAll();
     }
 
+
     @PostMapping
     public void save(@RequestBody UserList userList) {
-        if (userList.getName() == null) {
-//            listDao.update(userList);
+        String name = listDao.findName(userList.getName());
+        if (name.equals(userList.getName())){
+            listDao.update(userList);
+        }else{
+            listDao.insert(userList);
         }
-        listDao.insert(userList);
-        System.out.println("1");
+    }
+
+    @DeleteMapping("/{name}")
+    public boolean delete(@PathVariable String name) {
+        System.out.println(name + "1");
+        if (name == null || name.equals("")) {
+            throw new RuntimeException("参数错误");
+        }
+        return listDao.deleteByName(name) == 1;
     }
 }
 
