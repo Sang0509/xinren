@@ -57,8 +57,8 @@
         label="操作"
         width="150">
       <template #default="scope">
-        <el-button @click="handleEdit(scope.row)" type="text" size="small"><el-icon style="margin-right: 3px"><Edit /></el-icon>編集</el-button>
-        <el-button @click="deleteRow(scope.row)" link type="danger" size="small"><el-icon style="margin-right: 3px"><Delete /></el-icon>削除</el-button>
+        <el-button type="text" size="small" @click="handleEdit(scope.row)"><el-icon style="margin-right: 3px"><Edit /></el-icon>編集</el-button>
+        <el-button link type="danger" size="small" @click="deleteRow(scope.row.name)"><el-icon style="margin-right: 3px"><Delete /></el-icon>削除</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -155,21 +155,10 @@ const handleEdit = (row) => {
   state.form = JSON.parse(JSON.stringify(row))
 }
 
-const deleteRow = () => {
-  delname.value = true
-  state.form = JSON.parse(JSON.stringify(row))
-}
-
-const del = () =>{
-  request.delete("http://localhost:9090/home"+state.form.name).then(res => {
-    console.log(state.form.name)
-    if (res === true){
-      ElMessage.success("削除")
-    }else{
-      ElMessage.success("失敗")
-    }
-  })
-}
+// const deleteRow = (row) =>{
+//   state.form = JSON.parse(JSON.stringify(row))
+//   console.log(state.form.name)
+// }
 
 const save = () => {
   proxy.$refs.ruleFormRef.validate((valid) => {
@@ -185,4 +174,17 @@ const save = () => {
     }
   })
 }
+
+const deleteRow = (name) => {
+  request.delete("http://localhost:9090/home" + name).then(res => {
+    if (res === true) {
+      ElMessage.success("削除しました")
+    } else {
+      ElMessage.success("失敗しました")
+    }
+    //刷新表格
+    load()
+  })
+}
 </script>
+
