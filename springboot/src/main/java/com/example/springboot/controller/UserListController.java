@@ -1,5 +1,6 @@
 package com.example.springboot.controller;
 
+import com.example.springboot.common.Result;
 import com.example.springboot.dao.ListDao;
 import com.example.springboot.entity.User;
 import com.example.springboot.entity.UserList;
@@ -15,28 +16,27 @@ public class UserListController {
     private ListDao listDao;
 
     @GetMapping("/list")
-    public List<UserList> findAll() {
-        return listDao.findAll();
+    public Result findAll() {
+        return Result.success(listDao.findAll());
     }
 
-
     @PostMapping
-    public void save(@RequestBody UserList userList) {
+    public Result save(@RequestBody UserList userList) {
         String name = listDao.findName(userList.getName());
-        if (name.equals(userList.getName())){
+        if (name.equals(userList.getName())) {
             listDao.update(userList);
-        }else{
+        } else {
             listDao.insert(userList);
         }
+        return Result.success();
     }
 
     @DeleteMapping("/{name}")
-    public boolean delete(@PathVariable String name) {
-        System.out.println(name + "1");
+    public Result delete(@PathVariable String name) {
         if (name == null || name.equals("")) {
-            throw new RuntimeException("参数错误");
+            return Result.error("参数错误");
         }
-        return listDao.deleteByName(name) == 1;
+        return Result.success(listDao.deleteByName(name) == 1);
     }
 }
 

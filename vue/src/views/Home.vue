@@ -58,7 +58,11 @@
         width="150">
       <template #default="scope">
         <el-button type="text" size="small" @click="handleEdit(scope.row)"><el-icon style="margin-right: 3px"><Edit /></el-icon>編集</el-button>
-        <el-button link type="danger" size="small" @click="deleteRow(scope.row.name)"><el-icon style="margin-right: 3px"><Delete /></el-icon>削除</el-button>
+        <el-popconfirm title="削除してよろしいですか？" @confirm="deleteRow(scope.row.name)">
+          <template #reference>
+            <el-button link type="danger" size="small"><el-icon style="margin-right: 3px"><Delete /></el-icon>削除</el-button>
+          </template>
+        </el-popconfirm>
       </template>
     </el-table-column>
   </el-table>
@@ -127,22 +131,41 @@ import request from "../request";
 import {ElMessage} from "element-plus";
 const { proxy } = getCurrentInstance()
 
+const checkEmail = (rule, value, callback) => {
+  console.log(value)
+  if (!value) {
+    return callback(new Error('メールアドレスを入力してください'))
+  }
+}
+
 const state = reactive({
   tableDate: [],
   form: {},
   rules: {
     name: [
       {required: true, message: '氏名を入力してください', trigger: 'blur'}
+    ],
+    email:[
+      { validator: checkEmail, trigger: 'blur'}
     ]
   }
 })
 
 const load = () => {
   request.get("http://localhost:9090/home/list").then(res => {
-    state.tableDate = res
+    if (res.code === '200') {
+      state.tableDate = res.data
+    }
   })
 }
 load()
+
+// const load = () => {
+//   request.get("http://localhost:9090/home/list").then(res => {
+//     state.tableDate = res
+//   })
+// }
+// load()
 
 const dialogFormVisible = ref(false)
 const handleAdd = () => {
@@ -155,29 +178,28 @@ const handleEdit = (row) => {
   state.form = JSON.parse(JSON.stringify(row))
 }
 
-// const deleteRow = (row) =>{
-//   state.form = JSON.parse(JSON.stringify(row))
-//   console.log(state.form.name)
-// }
-
 const save = () => {
   proxy.$refs.ruleFormRef.validate((valid) => {
     if(valid) {
       console.log(state.form)
       request.post("http://localhost:9090/home",state.form).then(res => {
-        ElMessage.success("登録しました")
-        //关闭弹窗
-        dialogFormVisible.value = false
-        //刷新表格
-        load()
+        if (res.code === '200') {
+          ElMessage.success("登録しました")
+          //关闭弹窗
+          dialogFormVisible.value = false
+          //刷新表格
+          load()
+        } else {
+          ElMessage.error(res.msg)
+        }
       })
     }
   })
 }
 
 const deleteRow = (name) => {
-  request.delete("http://localhost:9090/home" + name).then(res => {
-    if (res === true) {
+  request.delete("http://localhost:9090/home/" + name).then(res => {
+    if (res.code === '200' && res.data === true) {
       ElMessage.success("削除しました")
     } else {
       ElMessage.success("失敗しました")
