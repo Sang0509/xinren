@@ -22,4 +22,12 @@
     <select id="findAll" resultType="com.example.springboot.entity.UserList">
         SELECT * FROM list
     </select>
+
+    <select id="findPage" resultType="com.example.springboot.entity.UserList">
+        SELECT * FROM list LIMIT #{pageNum},#{pageSize}
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT count(name) FROM list
+    </select>
 </mapper>

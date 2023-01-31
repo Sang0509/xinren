@@ -1,11 +1,8 @@
 package com.example.springboot.dao;
 
 import com.example.springboot.entity.User;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.*;
 import com.example.springboot.entity.UserList;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -24,4 +21,8 @@ public interface ListDao {
     int update(UserList userList);
 
     int deleteByName(String name);
+
+    List<UserList> findPage(@Param("pageNum") Integer pageNum, @Param("pageSize")Integer pageSize);
+
+    long count();
 }

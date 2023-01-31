@@ -67,7 +67,21 @@
     </el-table-column>
   </el-table>
 
-
+  <div style="margin: 10px 0">
+    <el-pagination
+        background
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :page-sizes="[1, 200, 300, 400]"
+        :small="small"
+        :disabled="false"
+        :background="background"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="3"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+    />
+  </div>
 
 
   <el-dialog v-model="dialogFormVisible" title="新規情報登録" width="50%">
@@ -132,7 +146,6 @@ import {ElMessage} from "element-plus";
 const { proxy } = getCurrentInstance()
 
 const checkEmail = (rule, value, callback) => {
-  console.log(value)
   if (!value) {
     return callback(new Error('メールアドレスを入力してください'))
   }
@@ -151,21 +164,39 @@ const state = reactive({
   }
 })
 
+const currentPage = ref(1)
+const pageSize = ref(1)
+const total = ref(0)
+
 const load = () => {
-  request.get("http://localhost:9090/home/list").then(res => {
+  request.get("http://localhost:9090/home/list/page/", {
+    params: {
+      currentPage: currentPage.value,
+      pageSize: pageSize.value
+    }
+  }).then(res => {
     if (res.code === '200') {
       state.tableDate = res.data
+      total.value = res.data.total
+      // console.log(res.data)
+      console.log(state.tableDate.data)
+      console.log( total.value)
     }
   })
 }
 load()
 
-// const load = () => {
-//   request.get("http://localhost:9090/home/list").then(res => {
-//     state.tableDate = res
-//   })
-// }
-// load()
+const handleSizeChange = (val) => {
+  console.log(val)
+  pageSize.value = val
+  load()
+}
+
+const handleCurrentChange = (val) => {
+  console.log(val)
+  currentPage.value = val
+  load()
+}
 
 const dialogFormVisible = ref(false)
 const handleAdd = () => {
