@@ -43,7 +43,7 @@ const login = () => {
       //往后台发送请求 http://localhost:9090   /user/login
       //后台数据格式，{"code": "200", "msg": "", "data": null}
       request.post('/user/login',user).then(res => {
-        if (res) { // 請求成功
+        if (res.code === '200') { // 請求成功
           ElMessage({
             type: 'success',
             message: 'ログイン成功しました'
@@ -52,14 +52,14 @@ const login = () => {
         }else {　//請求失敗
           ElMessage({
             type: 'error',
-            message: 'ログイン失敗しました'
+            message: res.msg
           })
         }
       })
     } else {
       ElMessage({
         type: 'error',
-        message: 'メールアドレスまたはパスワードが間違っています'
+          message: 'メールアドレスまたはパスワードが間違っています'
       })
     }
   })
