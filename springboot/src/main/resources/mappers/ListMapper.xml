@@ -6,8 +6,8 @@
 <mapper namespace="com.example.springboot.dao.ListDao">
 
     <insert id="insert">
-        INSERT INTO `list` (name, sex, department, email, birthday, telephone, skill, educational, address)
-        values(#{name}, #{sex}, #{department}, #{email}, #{birthday}, #{telephone}, #{skill}, #{educational}, #{address});
+        INSERT INTO `list` (name, sex, department, email, birthday, telephone, skill, educational, address, del_flag)
+        values(#{name}, #{sex}, #{department}, #{email}, #{birthday}, #{telephone}, #{skill}, #{educational}, #{address}, 0);
     </insert>
 
     <update id="update">
@@ -24,10 +24,33 @@
     </select>
 
     <select id="findPage" resultType="com.example.springboot.entity.UserList">
-        SELECT * FROM list LIMIT #{pageNum},#{pageSize}
+        SELECT * FROM list
+        <where>
+            <if test="name != null and name != ''" >
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="email != null and email != ''" >
+                and email like concat('%', #{email}, '%')
+            </if>
+            <if test="telephone != null and telephone != ''" >
+                and telephone like concat('%', #{telephone}, '%')
+            </if>
+        </where>
+        LIMIT #{pageNum},#{pageSize}
     </select>
 
     <select id="count" resultType="java.lang.Long">
         SELECT count(name) FROM list
+        <where>
+            <if test="name != null and name != ''" >
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="email != null and email != ''" >
+                and email like concat('%', #{email}, '%')
+            </if>
+            <if test="telephone != null and telephone != ''" >
+                and telephone like concat('%', #{telephone}, '%')
+            </if>
+        </where>
     </select>
 </mapper>

@@ -9,4 +9,5 @@ public class User {
     private String username;
     //パスワード
     private String password;
+    private String email;
 }

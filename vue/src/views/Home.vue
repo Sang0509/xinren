@@ -1,28 +1,51 @@
 <template>
-  <div>
+  <div style="margin-bottom: 50px">
+    <el-input style="width: 260px; margin-right: 10px" v-model="name" placeholder="氏名を入力してください" clearable></el-input>
+    <el-input style="width: 260px; margin-right: 10px" v-model="email" placeholder="メールアドレスを入力してください" clearable></el-input>
+    <el-input style="width: 260px; margin-right: 10px" v-model="telephone" placeholder="電話番号を入力してください" clearable></el-input>
+    <el-button type="primary" @click="load"><el-icon style="margin-right: 3px"><Search /></el-icon>検索</el-button>
     <el-button type="primary" @click="handleAdd"><el-icon style="margin-right: 3px"><Plus /></el-icon>新規登録</el-button>
+    <div class="right-items" style="float: right;">
+      <el-dropdown>
+        <el-button type="success">
+          <el-icon style="margin-right: 3px"><User /></el-icon>Administrator<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+        </el-button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item><el-icon class="el-icon--right"><Setting /></el-icon>各種設定</el-dropdown-item>
+            <el-dropdown-item><a href="http://localhost:5173/login">
+              <el-icon class="el-icon--right"><SwitchButton /></el-icon>ログアウト</a></el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+      </div>
   </div>
   <el-table
       :data="state.tableDate"
       border
+      :default-sort="{ prop: 'name, sex, department, birthday,', order: 'descending' }"
       style="width: 100%">
     <el-table-column
+        sortable
         fixed
         prop="name"
         label="氏名"
         width="150">
     </el-table-column>
     <el-table-column
+        sortable
         prop="sex"
         label="性別"
         width="100">
     </el-table-column>
     <el-table-column
+        sortable
         prop="department"
         label="部署"
         width="120">
     </el-table-column>
     <el-table-column
+        sortable
         prop="birthday"
         label="生年月日"
         width="180">
@@ -55,8 +78,9 @@
     <el-table-column
         fixed="right"
         label="操作"
-        width="150">
+        width="220">
       <template #default="scope">
+        <el-button type="warning" text="warning" size="small" @click="dialogDetailVisible = true"><el-icon style="margin-right: 3px"><ZoomIn /></el-icon>詳細</el-button>
         <el-button type="text" size="small" @click="handleEdit(scope.row)"><el-icon style="margin-right: 3px"><Edit /></el-icon>編集</el-button>
         <el-popconfirm title="削除してよろしいですか？" @confirm="deleteRow(scope.row.name)">
           <template #reference>
@@ -72,19 +96,28 @@
         background
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"
-        :page-sizes="[1, 200, 300, 400]"
+        :page-sizes="[10, 200, 300, 400]"
         :small="small"
         :disabled="false"
         :background="background"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="3"
+        :total="total"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
     />
   </div>
 
-
-  <el-dialog v-model="dialogFormVisible" title="新規情報登録" width="50%">
+  <el-dialog v-model="dialogDetailVisible" title="社員情報詳細">
+    <el-table style="width: 100%" :data="state.tableDate" :show-header="false">
+      <el-table-column
+          v-for="(item, index) in state.tableDate"
+          :key="index"
+          :prop="item"
+      >
+      </el-table-column>
+    </el-table>
+  </el-dialog>
+  <el-dialog v-model="dialogFormVisible" title="社員情報登録" width="50%">
     <el-form :model="state.form" :rules="state.rules" ref="ruleFormRef" label-width="120px" style="width: 85%">
       <el-form-item label="氏名" prop="name">
         <el-input v-model="state.form.name" autocomplete="off" placeholder="氏名を入力してください" />
@@ -106,13 +139,22 @@
         </el-select>
       </el-form-item>
       <el-form-item label="生年月日">
-        <el-input v-model="state.form.birthday" autocomplete="off" placeholder="生年月日を入力してください" />
+        <el-date-picker
+            v-model="state.form.birthday"
+            type="date"
+            value-format="YYYY-MM-DD"
+            format="YYYY-MM-DD"
+            placeholder="Pick a day"
+            :disabled-date="disabledDate"
+            :shortcuts="shortcuts"
+            :size="size"
+        />
       </el-form-item>
       <el-form-item label="メールアドレス">
         <el-input v-model="state.form.email" autocomplete="off" placeholder="メールアドレスを入力してください" />
       </el-form-item>
       <el-form-item label="電話番号">
-        <el-input v-model="state.form.telephone" autocomplete="off" placeholder="電話番号を入力してください" />
+        <el-input v-model="state.form.telephone" autocompl  ete="off" placeholder="電話番号を入力してください" />
       </el-form-item>
       <el-form-item label="特技">
         <el-input v-model="state.form.skill" autocomplete="off" placeholder="スキルを入力してください" />
@@ -139,11 +181,37 @@
 </template>
 
 <script setup>
-import { Edit, Delete, Plus} from '@element-plus/icons-vue'
+import { Edit, Delete, Plus, Search, ArrowDown, ZoomIn, User, Setting, SwitchButton} from '@element-plus/icons-vue'
 import {getCurrentInstance, reactive, ref} from "vue";
 import request from "../request";
 import {ElMessage} from "element-plus";
 const { proxy } = getCurrentInstance()
+
+const shortcuts = [
+  {
+    text: 'Today',
+    value: new Date(),
+  },
+  {
+    text: 'Yesterday',
+    value: () => {
+      const date = new Date()
+      date.setTime(date.getTime() - 3600 * 1000 * 24)
+      return date
+    },
+  },
+  {
+    text: 'A week ago',
+    value: () => {
+      const date = new Date()
+      date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
+      return date
+    },
+  },
+]
+// const disabledDate = (time: Date) => {
+//   return time.getTime() > Date.now()
+// }
 
 const checkEmail = (rule, value, callback) => {
   if (!value) {
@@ -165,39 +233,40 @@ const state = reactive({
 })
 
 const currentPage = ref(1)
-const pageSize = ref(1)
+const pageSize = ref(10)
 const total = ref(0)
-
+const name = ref('')
+const email = ref('')
+const telephone = ref('')
 const load = () => {
   request.get("http://localhost:9090/home/list/page/", {
     params: {
       currentPage: currentPage.value,
-      pageSize: pageSize.value
+      pageSize: pageSize.value,
+      name: name.value,
+      email: email.value,
+      telephone: telephone.value
     }
   }).then(res => {
     if (res.code === '200') {
-      state.tableDate = res.data
+      state.tableDate = res.data.data
       total.value = res.data.total
-      // console.log(res.data)
-      console.log(state.tableDate.data)
-      console.log( total.value)
     }
   })
 }
 load()
 
 const handleSizeChange = (val) => {
-  console.log(val)
   pageSize.value = val
   load()
 }
 
 const handleCurrentChange = (val) => {
-  console.log(val)
   currentPage.value = val
   load()
 }
 
+const dialogDetailVisible = ref(false)
 const dialogFormVisible = ref(false)
 const handleAdd = () => {
   dialogFormVisible.value = true
@@ -212,7 +281,6 @@ const handleEdit = (row) => {
 const save = () => {
   proxy.$refs.ruleFormRef.validate((valid) => {
     if(valid) {
-      console.log(state.form)
       request.post("http://localhost:9090/home",state.form).then(res => {
         if (res.code === '200') {
           ElMessage.success("登録しました")
@@ -239,5 +307,8 @@ const deleteRow = (name) => {
     load()
   })
 }
+
+
+
 </script>
 

@@ -5,11 +5,11 @@
 
 <mapper namespace="com.example.springboot.dao.UserDao">
     <insert id="insert">
-        INSERT INTO `user`(username, password) values(#{username}, #{password});
+        INSERT INTO `user`(email, password) values(#{email}, #{password});
     </insert>
 
     <update id="update">
-        update `user` set username = #{username}, password = #{password} where id = #{id};
+        update `user` set email = #{email}, password = #{password} where id = #{id};
     </update>
 
     <delete id="deletById">
@@ -25,7 +25,7 @@
     </select>
 
     <select id="getByUser" resultType="com.example.springboot.entity.User">
-        select * from user where username = #{username} and password=#{password}
+        select email,password from user where email = #{email} and password=#{password}
     </select>
 
 </mapper>

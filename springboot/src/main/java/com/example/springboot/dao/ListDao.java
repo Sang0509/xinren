@@ -1,5 +1,6 @@
 package com.example.springboot.dao;
 
+import com.example.springboot.controller.DTO.UserQueryDTO;
 import com.example.springboot.entity.User;
 import org.apache.ibatis.annotations.*;
 import com.example.springboot.entity.UserList;
@@ -22,7 +23,7 @@ public interface ListDao {
 
     int deleteByName(String name);
 
-    List<UserList> findPage(@Param("pageNum") Integer pageNum, @Param("pageSize")Integer pageSize);
+    List<UserList> findPage(UserQueryDTO userQueryDTO);
 
-    long count();
+    long count(UserQueryDTO userQueryDTO);
 }

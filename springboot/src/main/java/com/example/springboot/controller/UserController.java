@@ -17,14 +17,14 @@ public class UserController {
     //@PostMapping("/login")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public Result login(@RequestBody User user) {     //@RequestBody接受一个json参数
-        if (user.getUsername() == null || user.getPassword() == null) {
+        if (user.getEmail() == null || user.getPassword() == null) {
             return Result.error("参数错误");
         }
-        User result = userDao.getByUser(user.getUsername(), user.getPassword());
-        if (result == null) {
+        userDao.getByUser(user.getEmail(), user.getPassword());
+        if ( userDao.getByUser(user.getEmail(), user.getPassword()) == null) {
             return Result.error("メールアドレスまたはパスワードが間違っています");
         }
-        return Result.success(result);
+        return Result.success( userDao.getByUser(user.getEmail(), user.getPassword()));
     }
 
     @GetMapping//localhost:9090/   //localhost:9090/任意字符串
@@ -38,13 +38,13 @@ public class UserController {
     }
 
     @GetMapping("/uniqueQuery")
-    public Result uniqueQuery(String username, String password) {
-        return Result.success(userDao.getByUser(username,password));
+    public Result uniqueQuery(String email, String password) {
+        return Result.success(userDao.getByUser(email,password));
     }
 
     @PostMapping
     public Result save(@RequestBody User user) {
-        if (user.getUsername() == null || user.getPassword() == null) {
+        if (user.getEmail() == null || user.getPassword() == null) {
             return Result.error("参数错误");
         }
         userDao.insert(user);

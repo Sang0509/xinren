@@ -1,6 +1,7 @@
 package com.example.springboot.controller;
 
 import com.example.springboot.common.Result;
+import com.example.springboot.controller.DTO.UserQueryDTO;
 import com.example.springboot.dao.ListDao;
 import com.example.springboot.entity.User;
 import com.example.springboot.entity.UserList;
@@ -25,13 +26,19 @@ public class UserListController {
     }
 
     @GetMapping("/list/page") //    /list/page?currentPage=1&pageSize=10
-    public Result findPage(@RequestParam Integer currentPage, @RequestParam Integer pageSize) {
+    public Result findPage(UserQueryDTO userQueryDTO) {
         // currentPage = 1 pageNum = 0
         //currentPage = 2 pageNum = 3
         //currentPage = 3 pageNum = 6
+        Integer currentPage = userQueryDTO.getCurrentPage();
+        Integer pageSize = userQueryDTO.getPageSize();
+        if (currentPage == null || currentPage <= 0 ||pageSize == null || pageSize <1) {
+            return Result.error("参数错误");
+        }
         Integer pageNum = (currentPage - 1) * pageSize;
-        List<UserList> lists = listDao.findPage(pageNum, pageSize);
-        long total = listDao.count();
+        userQueryDTO.setPageNum(pageNum);
+        List<UserList> lists = listDao.findPage(userQueryDTO);
+        long total = listDao.count(userQueryDTO);
 
         Map<String, Object> map = new HashMap<>();
         map.put("data",lists);
@@ -57,5 +64,7 @@ public class UserListController {
         }
         return Result.success(listDao.deleteByName(name) == 1);
     }
+
+
 }
 

@@ -13,7 +13,7 @@ public interface UserDao {
 
     User getById(Integer id);
 
-    User getByUser(@Param("username") String username, @Param("password") String password);
+    User getByUser(@Param("email") String email, @Param("password") String password);
 
     int insert(User user);
 
