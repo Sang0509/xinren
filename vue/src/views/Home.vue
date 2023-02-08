@@ -107,15 +107,42 @@
     />
   </div>
 
-  <el-dialog v-model="dialogDetailVisible" title="社員情報詳細">
-    <el-table style="width: 100%" :data="state.tableDate" :show-header="false">
-      <el-table-column
-          v-for="(item, index) in state.tableDate"
-          :key="index"
-          :prop="item"
+  <el-dialog v-model="dialogDetailVisible" >
+    <el-descriptions title="社員情報詳細" :column="1" border>
+      <el-descriptions-item
+          label="氏名"
+          label-align="right"
+          align="center"
+          label-class-name="my-label"
+          class-name="my-content"
+          width="150px"
+      >{{state.form.name}}</el-descriptions-item
       >
-      </el-table-column>
-    </el-table>
+      <el-descriptions-item label="性別" label-align="right" align="center"
+      >{{state.form.sex}}</el-descriptions-item
+      >
+      <el-descriptions-item label="部署" label-align="right" align="center"
+      >{{state.form.department}}</el-descriptions-item
+      >
+      <el-descriptions-item label="生年月日" label-align="right" align="center">
+        {{state.form.birthday}}
+      </el-descriptions-item>
+      <el-descriptions-item label="メールアドレス" label-align="right" align="center"
+      >{{state.form.email}}</el-descriptions-item
+      >
+      <el-descriptions-item label="電話番号" label-align="right" align="center"
+      >{{state.form.telephone}}</el-descriptions-item
+      >
+      <el-descriptions-item label="特技" label-align="right" align="center"
+      >{{state.form.skill}}</el-descriptions-item
+      >
+      <el-descriptions-item label="最終学歴" label-align="right" align="center"
+      >{{state.form.education}}</el-descriptions-item
+      >
+      <el-descriptions-item label="住所" label-align="right" align="center"
+      >{{state.form.address}}</el-descriptions-item
+      >
+    </el-descriptions>
   </el-dialog>
   <el-dialog v-model="dialogFormVisible" title="社員情報登録" width="50%">
     <el-form :model="state.form" :rules="state.rules" ref="ruleFormRef" label-width="120px" style="width: 85%">
