@@ -1,9 +1,9 @@
 package com.example.springboot.dao;
 
 import com.example.springboot.controller.DTO.UserQueryDTO;
-import com.example.springboot.entity.User;
 import org.apache.ibatis.annotations.*;
 import com.example.springboot.entity.UserList;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 

@@ -8,7 +8,7 @@
     <div class="right-items" style="float: right;">
       <el-dropdown>
         <el-button type="success">
-          <el-icon style="margin-right: 3px"><User /></el-icon>Administrator<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+          <el-icon style="margin-right: 3px"><User /></el-icon>管理員<el-icon class="el-icon--right"><ArrowDown /></el-icon>
         </el-button>
         <template #dropdown>
           <el-dropdown-menu>
@@ -23,7 +23,7 @@
   <el-table
       :data="state.tableDate"
       border
-      :default-sort="{ prop: 'name, sex, department, birthday,', order: 'descending' }"
+      :default-sort="{ prop: 'name, sex, department, birthday, email, telephone, educational, address', order: 'descending' }"
       style="width: 100%">
     <el-table-column
         sortable
@@ -51,26 +51,30 @@
         width="180">
     </el-table-column>
     　<el-table-column
+      sortable
       prop="email"
       label="メールアドレス"
-      width="200">
+      width="250">
   </el-table-column>
     　<el-table-column
+      sortable
       prop="telephone"
       label="電話番号"
       width="180">
   </el-table-column>
-    　<el-table-column
-      prop="skill"
-      label="特技"
-      width="150">
-  </el-table-column>
+<!--    　<el-table-column-->
+<!--      prop="skill"-->
+<!--      label="特技"-->
+<!--      width="150">-->
+<!--  </el-table-column>-->
     <el-table-column
+        sortable
         prop="educational"
         label="最終学歴"
-        width="100">
+        width="150">
     </el-table-column>
     <el-table-column
+        sortable
         prop="address"
         label="住所"
         width="300">
@@ -80,7 +84,7 @@
         label="操作"
         width="220">
       <template #default="scope">
-        <el-button type="warning" text="warning" size="small" @click="dialogDetailVisible = true"><el-icon style="margin-right: 3px"><ZoomIn /></el-icon>詳細</el-button>
+        <el-button type="warning" text="warning" size="small" @click="syosai(scope.row)"><el-icon style="margin-right: 3px"><ZoomIn /></el-icon>詳細</el-button>
         <el-button type="text" size="small" @click="handleEdit(scope.row)"><el-icon style="margin-right: 3px"><Edit /></el-icon>編集</el-button>
         <el-popconfirm title="削除してよろしいですか？" @confirm="deleteRow(scope.row.name)">
           <template #reference>
@@ -107,7 +111,7 @@
     />
   </div>
 
-  <el-dialog v-model="dialogDetailVisible" >
+  <el-dialog v-model="state.use" >
     <el-descriptions title="社員情報詳細" :column="1" border>
       <el-descriptions-item
           label="氏名"
@@ -116,34 +120,37 @@
           label-class-name="my-label"
           class-name="my-content"
           width="150px"
-      >{{state.form.name}}</el-descriptions-item
+      >{{state.use.name}}</el-descriptions-item
       >
       <el-descriptions-item label="性別" label-align="right" align="center"
-      >{{state.form.sex}}</el-descriptions-item
+      >{{state.use.sex}}</el-descriptions-item
       >
       <el-descriptions-item label="部署" label-align="right" align="center"
-      >{{state.form.department}}</el-descriptions-item
+      >{{state.use.department}}</el-descriptions-item
       >
       <el-descriptions-item label="生年月日" label-align="right" align="center">
-        {{state.form.birthday}}
+        {{state.use.birthday}}
       </el-descriptions-item>
       <el-descriptions-item label="メールアドレス" label-align="right" align="center"
-      >{{state.form.email}}</el-descriptions-item
+      >{{state.use.email}}</el-descriptions-item
       >
       <el-descriptions-item label="電話番号" label-align="right" align="center"
-      >{{state.form.telephone}}</el-descriptions-item
+      >{{state.use.telephone}}</el-descriptions-item
       >
       <el-descriptions-item label="特技" label-align="right" align="center"
-      >{{state.form.skill}}</el-descriptions-item
+      >{{state.use.skill}}</el-descriptions-item
       >
       <el-descriptions-item label="最終学歴" label-align="right" align="center"
-      >{{state.form.education}}</el-descriptions-item
+      >{{state.use.educational}}</el-descriptions-item
       >
       <el-descriptions-item label="住所" label-align="right" align="center"
-      >{{state.form.address}}</el-descriptions-item
+      >{{state.use.address}}</el-descriptions-item
       >
     </el-descriptions>
   </el-dialog>
+
+
+
   <el-dialog v-model="dialogFormVisible" title="社員情報登録" width="50%">
     <el-form :model="state.form" :rules="state.rules" ref="ruleFormRef" label-width="120px" style="width: 85%">
       <el-form-item label="氏名" prop="name">
@@ -198,6 +205,21 @@
         <el-input v-model="state.form.address" autocomplete="off" placeholder="住所を入力してください" />
       </el-form-item>
     </el-form>
+    <el-upload
+        ref="upload"
+        class="upload-demo"
+        action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+        :limit="1"
+        :on-exceed="handleExceed"
+        :auto-upload="false"
+    >
+      <template #trigger>
+        <el-button size="small" type="default">ファイルを選択する</el-button>
+      </template>
+      <el-button size="small" class="ml-3" type="primary" text="primary" @click="submitUpload">
+        アップロード
+      </el-button>
+    </el-upload>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取り消し</el-button>
@@ -213,6 +235,11 @@ import {getCurrentInstance, reactive, ref} from "vue";
 import request from "../request";
 import {ElMessage} from "element-plus";
 const { proxy } = getCurrentInstance()
+
+const syosai = (row) => {
+  dialogFormVisible.value = false
+  state.use = JSON.parse(JSON.stringify(row))
+}
 
 const shortcuts = [
   {
@@ -293,7 +320,7 @@ const handleCurrentChange = (val) => {
   load()
 }
 
-const dialogDetailVisible = ref(false)
+// const dialogDetailVisible = ref(false)
 const dialogFormVisible = ref(false)
 const handleAdd = () => {
   dialogFormVisible.value = true
